@@ -1,0 +1,40 @@
+import os
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+TOKEN = os.getenv("8023940447:AAE_Pgk-CcCk0e0OiqJJc4qRUaMU3BLDpzQ")
+
+users = {}
+
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text("👋 Welcome!\nEnter your name:")
+    users[update.effective_user.id] = {}
+
+def handle(update: Update, context: CallbackContext):
+    uid = update.effective_user.id
+    text = update.message.text
+
+    if uid not in users:
+        users[uid] = {}
+
+    if "name" not in users[uid]:
+        users[uid]["name"] = text
+        update.message.reply_text("📱 Enter your phone number:")
+    else:
+        users[uid]["email"] = text
+        update.message.reply_text("✅ Registration complete!")
+
+        print("NEW USER:", users[uid])
+
+def main():
+    updater = Updater(TOKEN, use_context=True)
+    dp = updater.dispatcher
+
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
